@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>AkunQuest - Akuntansi Keuangan Interaktif</title>
+<meta name="description" content="Sistem perangkat pembelajaran Akuntansi Keuangan: ruang guru (RPP, LKPD, soal, progres siswa, ekspor PDF) dan ruang siswa gamifikasi.">
+<meta name="theme-color" content="#0d7a6b">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#12302b;--mut:#5f7f78;--bg:#f1f7f4;--pri:#0d7a6b;--priD:#095a4f;--ok:#1fbf75;--okD:#118a53;--okBg:#d9f7e8;--bad:#ff5a5f;--badD:#cc3c41;--badBg:#ffe1e2;--gold:#f4a300;--line:#d5e5df}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:'Baloo 2',system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:17px;line-height:1.35}
+#app{max-width:520px;margin:0 auto;min-height:100dvh;position:relative;padding:0 16px 100px}#app.w{max-width:920px}
+h1,h2,h3,p{margin:0}h1{font-size:34px;line-height:1.05;font-weight:800}h2{font-size:23px;font-weight:800;margin:14px 0}
+button,input,select,textarea{font:inherit;color:inherit}
+.btn{border:0;border-radius:16px;padding:11px 20px;cursor:pointer;background:var(--pri);color:#fff;box-shadow:0 5px 0 var(--priD);width:100%;font-weight:700;font-size:18px;transition:transform .08s,box-shadow .08s}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--priD)}
+.btn.ok{background:var(--ok);box-shadow:0 5px 0 var(--okD)}.btn.bad{background:var(--bad);box-shadow:0 5px 0 var(--badD)}
+.btn.ghost{background:#fff;color:var(--pri);border:2px solid var(--line);box-shadow:0 5px 0 var(--line)}
+.btn[disabled]{background:#d3e0db;box-shadow:0 5px 0 #bccfc8;color:#8aa49c;cursor:not-allowed}
+.stack>*+*{margin-top:14px}.c{text-align:center}.mut{color:var(--mut)}
+.top{position:sticky;top:0;z-index:5;display:flex;justify-content:space-between;padding:12px 4px;background:var(--bg);font-weight:800}
+.pill{display:flex;gap:5px;align-items:center}
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:6;background:#fff;border-top:2px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+.bar div{max-width:520px;margin:0 auto;display:flex}
+.bar button{flex:1;border:0;background:none;padding:8px 0;font-weight:700;color:var(--mut);cursor:pointer;font-size:14px}
+.bar button b{display:block;font-size:24px;line-height:1.1}.bar button.on{color:var(--pri)}
+.card,.opt,.chip{background:#fff;border:2px solid var(--line);border-bottom-width:5px;border-radius:16px;padding:12px 14px}
+.opt{display:block;width:100%;text-align:left;font-weight:600;cursor:pointer;margin-top:10px}
+.opt.sel,.card.sel{border-color:var(--pri);background:#e2f4ee}.opt.good{border-color:var(--ok);background:var(--okBg)}.opt.err{border-color:var(--bad);background:var(--badBg)}
+.chip{display:inline-block;margin:4px;padding:6px 14px;font-weight:700;cursor:pointer}.chip.used{opacity:.25;pointer-events:none}
+.ans{min-height:64px;border-bottom:2px solid var(--line);padding:6px 0;margin:12px 0}
+.goal{height:14px;background:var(--line);border-radius:9px;overflow:hidden;margin-top:6px}.goal i,.prog i{display:block;height:100%;background:var(--ok);border-radius:9px;transition:width .4s}
+.unit{border-radius:18px;padding:12px 16px;color:#fff;font-weight:800;margin:26px 0 12px;display:flex;justify-content:space-between;align-items:center}
+.path{display:flex;flex-direction:column;align-items:center;gap:16px}
+.node{width:76px;height:76px;border-radius:50%;border:0;font-size:32px;cursor:pointer;background:var(--ok);box-shadow:0 7px 0 var(--okD);position:relative}
+.node:active{transform:translateY(5px);box-shadow:0 2px 0 var(--okD)}
+.node.lock{background:#d3e0db;box-shadow:0 7px 0 #b3c7c0;filter:grayscale(1)}.node.now{background:var(--pri);box-shadow:0 7px 0 var(--priD)}
+.node.now::after{content:"MULAI";position:absolute;top:-30px;left:50%;transform:translateX(-50%);background:#fff;color:var(--pri);border:2px solid var(--line);border-radius:10px;padding:0 10px;font-size:14px;font-weight:800;animation:bob 1.1s ease-in-out infinite}
+@keyframes bob{50%{transform:translate(-50%,-6px)}}
+.ltop{display:flex;gap:12px;align-items:center;padding:16px 0}.x{border:0;background:none;font-size:24px;color:var(--mut);cursor:pointer}
+.prog{flex:1;height:16px;background:var(--line);border-radius:9px;overflow:hidden}
+#foot{position:fixed;left:0;right:0;bottom:0;padding:16px 16px calc(16px + env(safe-area-inset-bottom));background:var(--bg);z-index:7}
+#foot>*{max-width:488px;margin:0 auto;display:block}
+#foot.ok{background:var(--okBg)}#foot.bad{background:var(--badBg)}#foot .msg{font-weight:800;margin-bottom:10px;font-size:19px}
+.say{display:flex;align-items:center;gap:12px}
+.bub{background:#fff;border:2px solid var(--line);border-radius:16px;padding:10px 14px;font-weight:600;flex:1}
+.t{width:100%;border:2px solid var(--line);border-radius:14px;padding:11px 12px;font-size:17px;background:#fff}
+label{display:block;font-weight:700;font-size:15px;margin:10px 0 4px}
+.mas{flex:none}.mas.cheer{animation:hop .5s 3}.mas.sad{transform:rotate(-6deg)}@keyframes hop{50%{transform:translateY(-14px)}}
+.shake{animation:sh .35s}@keyframes sh{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.row{display:flex;gap:10px}.row>*{flex:1}.stat{text-align:center;font-weight:800}.stat small{display:block;color:var(--mut);font-weight:600}
+.rk{display:flex;gap:12px;align-items:center;padding:10px 12px;border-radius:14px;font-weight:700}.rk.me{background:#e2f4ee;border:2px solid var(--pri)}.rk.up{color:var(--okD)}.rk span:nth-child(2){flex:1}
+#cf{position:fixed;inset:0;pointer-events:none;z-index:20}
+.toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:14px;z-index:30;font-weight:700}
+table.tb{width:100%;border-collapse:collapse;font-size:14px}.tb td,.tb th{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left}.tb tr.lo td{color:var(--badD);font-weight:700}
+.tabs{gap:8px}.tabs .opt{margin:0;text-align:center;padding:9px 4px;font-size:16px}
+/* dokumen */
+.doc{background:#fff;color:#000;font:14px/1.5 'Times New Roman',Times,serif;padding:26px;border:2px solid var(--line);border-radius:12px;overflow-x:auto}
+.doc h1{font-size:17px;text-align:center;margin-bottom:10px;line-height:1.3}.doc h3{font-size:14.5px;margin:14px 0 4px}.doc p{margin:4px 0}.doc ol,.doc ul{margin:4px 0;padding-left:22px}
+.doc table{border-collapse:collapse;width:100%;margin:6px 0}.doc td,.doc th{border:1px solid #000;padding:4px 7px;vertical-align:top;text-align:left}.doc th{background:#eee}
+.ln{border-bottom:1px solid #444;height:24px}.pb{page-break-before:always;margin-top:30px}
+#pr{display:none}
+@media print{body>*:not(#pr){display:none!important}#pr{display:block;border:0;padding:0;border-radius:0}@page{margin:16mm}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+</style>
+</head>
+<body>
+<div id="app"></div><canvas id="cf"></canvas><div id="pr" class="doc"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" defer></script>
+<script>
+const $=s=>document.querySelector(s),sh=a=>[...a].sort(()=>Math.random()-.5),pick=a=>a[Math.random()*a.length|0];
+const ymd=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const today=()=>ymd(new Date()),yest=()=>ymd(new Date(Date.now()-864e5));
+const wk=()=>{const d=new Date();d.setDate(d.getDate()-((d.getDay()+6)%7));return ymd(d)};
+const norm=s=>s.toLowerCase().replace(/[^a-z0-9 ]/g,'').replace(/\s+/g,' ').trim(),norm2=s=>norm(s).replace(/^rp/,'');
+const LV=['','Pemula','Menengah','Mahir'];
+const MASC={byte:{n:'Ledi',c:'#0d7a6b',d:'Burung hantu akuntan yang teliti'},lila:{n:'Kasa',c:'#e0457b',d:'Kucing kasir yang ceria'},zed:{n:'Neraca',c:'#18a0c2',d:'Robot auditor yang santai'}};
+/* ===== BANK MATERI AKUNTANSI KEUANGAN =====
+t judul, q template pertanyaan, h kepala kolom LKPD, items [soal,jawaban], x pengecoh tambahan, bank=true: siswa menyusun jurnal,
+tp tujuan, k konsep, pm pertanyaan pemantik, kasus studi kasus, ur [uraian,kunci] */
+const UNITS=[
+{t:'Persamaan Akuntansi',i:'⚖️',c:'#0d7a6b',q:a=>`Akun "${a}" termasuk golongan apa?`,h:['Nama akun','Golongan (Aset/Liabilitas/Ekuitas/Pendapatan/Beban)'],
+tp:['Menjelaskan persamaan dasar akuntansi (Aset = Liabilitas + Ekuitas)','Mengklasifikasikan akun ke dalam aset, liabilitas, ekuitas, pendapatan, dan beban','Menganalisis pengaruh transaksi terhadap persamaan akuntansi'],
+k:'Persamaan dasar akuntansi: Aset = Liabilitas + Ekuitas. Aset adalah sumber daya milik entitas; liabilitas adalah kewajiban kepada pihak luar; ekuitas adalah hak pemilik atas aset. Pendapatan menambah ekuitas, sedangkan beban dan prive menguranginya. Setiap transaksi harus menjaga persamaan tetap seimbang.',
+pm:'Jika kamu punya motor Rp15 juta dan masih berutang Rp5 juta, berapa bagian yang benar-benar milikmu?',
+kasus:['Pada 1 Mei, Bapak Andi mendirikan usaha jasa fotokopi dengan setoran modal tunai Rp10.000.000. Tunjukkan pengaruhnya pada persamaan akuntansi.','Pada 5 Mei, usaha membeli mesin fotokopi Rp6.000.000: tunai Rp2.000.000 dan sisanya kredit. Analisis pengaruhnya pada Aset, Liabilitas, dan Ekuitas.'],
+items:[['Kas','Aset'],['Piutang Usaha','Aset'],['Perlengkapan','Aset'],['Peralatan','Aset'],['Utang Usaha','Liabilitas'],['Utang Bank','Liabilitas'],['Modal Pemilik','Ekuitas'],['Prive','Ekuitas'],['Pendapatan Jasa','Pendapatan'],['Beban Gaji','Beban'],['Beban Sewa','Beban']],
+ur:[['Jelaskan persamaan dasar akuntansi dan berikan satu contoh akun untuk setiap unsurnya!','Aset = Liabilitas + Ekuitas; contoh: Kas (aset), Utang Usaha (liabilitas), Modal (ekuitas).'],['Usaha menerima pendapatan jasa tunai Rp3.000.000. Bagaimana pengaruhnya pada persamaan akuntansi?','Aset (Kas) bertambah Rp3.000.000 dan ekuitas bertambah Rp3.000.000; persamaan tetap seimbang.'],['Mengapa prive mengurangi ekuitas?','Prive adalah pengambilan aset oleh pemilik untuk keperluan pribadi sehingga hak pemilik atas aset berkurang.']]},
+{t:'Debit dan Kredit',i:'↔️',c:'#e8590c',q:a=>`Saldo normal akun "${a}" berada di sisi apa?`,x:['Debit dan Kredit','Tidak punya saldo normal'],h:['Nama akun','Saldo normal (Debit/Kredit)'],
+tp:['Menjelaskan aturan debit dan kredit','Menentukan saldo normal setiap akun','Menerapkan aturan debit-kredit pada transaksi sederhana'],
+k:'Debit berada di sisi kiri dan kredit di sisi kanan. Aset, beban, dan prive bertambah di debit (saldo normal debit). Liabilitas, ekuitas (modal), dan pendapatan bertambah di kredit (saldo normal kredit). Jumlah debit selalu sama dengan jumlah kredit.',
+pm:'Mengapa uang masuk ke kas dicatat di sebelah kiri, sedangkan utang baru dicatat di sebelah kanan?',
+kasus:['Tentukan akun yang bertambah dan sisinya (debit/kredit) pada transaksi: usaha menerima pendapatan jasa tunai Rp2.500.000.','Tentukan akun dan sisinya pada transaksi: usaha membayar utang usaha Rp1.000.000 secara tunai.'],
+items:[['Kas','Debit'],['Peralatan','Debit'],['Piutang Usaha','Debit'],['Beban Gaji','Debit'],['Prive','Debit'],['Utang Usaha','Kredit'],['Modal Pemilik','Kredit'],['Pendapatan Jasa','Kredit']],
+ur:[['Sebutkan kelompok akun yang saldo normalnya debit dan kredit!','Debit: aset, beban, prive. Kredit: liabilitas, ekuitas/modal, pendapatan.'],['Jelaskan mengapa jumlah debit harus sama dengan jumlah kredit!','Karena prinsip akuntansi berpasangan: setiap transaksi memengaruhi minimal dua akun dengan nilai seimbang sehingga persamaan akuntansi tetap seimbang.'],['Kas bertambah Rp4.000.000 dari setoran modal. Sebutkan akun yang didebit dan dikredit!','Debit Kas Rp4.000.000; kredit Modal Rp4.000.000.']]},
+{t:'Jurnal Umum',i:'📒',c:'#0b9f8a',bank:1,q:a=>`Transaksi: ${a}. Jurnal yang tepat adalah...`,h:['Transaksi','Jurnal (akun didebit / dikredit)'],
+tp:['Menganalisis bukti transaksi menjadi akun yang terpengaruh','Menyusun jurnal umum dengan benar','Memeriksa keseimbangan debit dan kredit'],
+k:'Jurnal umum mencatat transaksi secara kronologis. Langkahnya: (1) identifikasi bukti transaksi, (2) tentukan akun yang terpengaruh, (3) tentukan sisi debit/kredit, (4) catat tanggal, akun, dan jumlah. Akun yang didebit ditulis lebih dahulu, akun yang dikredit menjorok ke kanan.',
+pm:'Saat kamu membeli bakso tunai, uang apa yang berkurang dan apa yang kamu dapat? Bagaimana mencatatnya?',
+kasus:['Pada 3 Juni, Salon Cantik membeli perlengkapan Rp800.000 secara tunai. Susun jurnalnya.','Pada 10 Juni, Salon Cantik menerima pendapatan jasa tunai Rp1.500.000 dan membayar gaji Rp600.000. Susun jurnalnya.'],
+items:[['Setor modal tunai oleh pemilik','Debit Kas Kredit Modal'],['Beli perlengkapan secara tunai','Debit Perlengkapan Kredit Kas'],['Terima pendapatan jasa tunai','Debit Kas Kredit Pendapatan Jasa'],['Bayar gaji karyawan','Debit Beban Gaji Kredit Kas'],['Beli peralatan secara kredit','Debit Peralatan Kredit Utang Usaha'],['Bayar utang usaha secara tunai','Debit Utang Usaha Kredit Kas']],
+ur:[['Jurnallah transaksi: dibeli peralatan Rp5.000.000, dibayar tunai Rp2.000.000, sisanya kredit!','Debit Peralatan 5.000.000; Kredit Kas 2.000.000; Kredit Utang Usaha 3.000.000.'],['Jurnallah: pemilik mengambil kas Rp700.000 untuk keperluan pribadi!','Debit Prive 700.000; Kredit Kas 700.000.'],['Sebutkan empat langkah mencatat transaksi ke jurnal umum!','Identifikasi bukti transaksi, tentukan akun terpengaruh, tentukan sisi debit/kredit, lalu catat tanggal, akun, dan jumlah.']]},
+{t:'Laporan Keuangan',i:'📊',c:'#c2255c',q:a=>a,h:['Pertanyaan / uraian','Jawaban'],
+tp:['Menyebutkan jenis dan fungsi laporan keuangan','Menghitung laba bersih dan ekuitas akhir','Menyusun laporan keuangan sederhana dari neraca saldo'],
+k:'Laporan keuangan utama: Laporan Laba Rugi (pendapatan - beban), Laporan Perubahan Ekuitas (modal awal + laba - prive), Neraca/Laporan Posisi Keuangan (aset = liabilitas + ekuitas), dan Laporan Arus Kas. Urutan penyusunan: laba rugi, perubahan ekuitas, neraca.',
+pm:'Bagaimana pemilik warung tahu usahanya untung atau rugi bulan ini?',
+kasus:['Pendapatan jasa Rp9.000.000, beban gaji Rp3.000.000, beban sewa Rp1.500.000. Susun laporan laba rugi dan tentukan laba bersihnya.','Modal awal Rp20.000.000, laba bersih Rp4.500.000, prive Rp1.000.000. Hitung ekuitas akhir.'],
+items:[['Laporan yang menyajikan pendapatan dan beban satu periode','Laporan Laba Rugi'],['Laporan yang menunjukkan perubahan modal pemilik','Laporan Perubahan Ekuitas'],['Laporan yang menyajikan aset, liabilitas, dan ekuitas pada tanggal tertentu','Neraca'],['Laporan yang menyajikan arus kas masuk dan keluar','Laporan Arus Kas'],['Pendapatan Rp8.000.000 dan beban Rp5.000.000. Berapa laba bersih?','Rp3.000.000'],['Aset Rp50.000.000 dan liabilitas Rp20.000.000. Berapa ekuitas?','Rp30.000.000']],
+ur:[['Sebutkan empat laporan keuangan utama beserta fungsinya!','Laba Rugi (kinerja), Perubahan Ekuitas (perubahan modal), Neraca (posisi keuangan), Arus Kas (aliran kas).'],['Modal awal Rp12.000.000, laba bersih Rp3.000.000, prive Rp500.000. Hitung ekuitas akhir!','12.000.000 + 3.000.000 - 500.000 = Rp14.500.000.'],['Mengapa laporan laba rugi disusun lebih dahulu daripada neraca?','Karena laba bersih dari laporan laba rugi diperlukan untuk laporan perubahan ekuitas, yang hasilnya dipakai pada neraca.']]}];
+const STORIES=[
+{t:'Kedai Kopi Pak Budi',m:'byte',s:[
+['Pak Budi membuka kedai kopi dengan menyetor uang tunai Rp20.000.000 sebagai modal.',{q:'Akun apa yang didebit?',o:['Kas','Modal','Utang Usaha'],a:0}],
+['Ia lalu membeli mesin kopi Rp8.000.000 secara kredit dari pemasok.',{q:'Akun apa yang dikredit?',o:['Kas','Utang Usaha','Peralatan'],a:1}],
+['Akhir bulan kedai menerima pendapatan tunai Rp5.000.000 dan membayar gaji Rp2.000.000.',{q:'Berapa laba bersih bulan itu?',o:['Rp7.000.000','Rp3.000.000','Rp2.000.000'],a:1}]]},
+{t:'Laundry Bu Sari',m:'lila',s:[
+['Bu Sari membeli perlengkapan cuci Rp1.000.000 secara tunai.',{q:'Perlengkapan termasuk golongan apa?',o:['Beban','Aset','Liabilitas'],a:1}],
+['Ia mengambil Rp500.000 dari kas untuk keperluan pribadi.',{q:'Akun apa yang didebit?',o:['Prive','Beban Gaji','Modal'],a:0}],
+['Neraca menunjukkan Aset Rp30.000.000 dan Liabilitas Rp10.000.000.',{q:'Berapa ekuitasnya?',o:['Rp40.000.000','Rp20.000.000','Rp10.000.000'],a:1}]]}];
+const BOTS=[['Rizky',520],['Salsa',470],['Dimas',430],['Nadia',390],['Fajar',340],['Putri',300],['Bayu',260],['Citra',220],['Eko',180],['Wulan',140],['Tono',100],['Mira',60]];
+/* ===== KONFIGURASI =====
+SHEET_URL : URL Web App Google Apps Script agar progres otomatis masuk ke Google Sheets (opsional).
+TEACHER_PIN : PIN Ruang Guru. WAJIB diganti sebelum dipakai di kelas. */
+const SHEET_URL='',TEACHER_PIN='guru123';
+let S=null,U={},CUR=null,V='ob',OB={s:0,m:'byte',g:20},AU={tab:'in',er:''},L=null,ST=null,AC;
+let G={tab:'prog',topic:0,kelas:'XI Akuntansi',sekolah:'',guru:'',waktu:90,npg:10,nur:3,doc:''};
+try{U=JSON.parse(localStorage.getItem('akq_users'))||{};CUR=localStorage.getItem('akq_cur');Object.assign(G,JSON.parse(localStorage.getItem('akq_g'))||{})}catch(e){}
+if(CUR&&U[CUR]&&U[CUR].data){S=U[CUR].data;V=S.level?'home':'ob';if(!S.level)OB.s=1}else{CUR=null;V=Object.keys(U).length?'auth':'ob'}
+const save=()=>{try{if(CUR&&S)U[CUR].data=S;localStorage.setItem('akq_users',JSON.stringify(U))}catch(e){}};
+const sg=()=>{try{localStorage.setItem('akq_g',JSON.stringify({sekolah:G.sekolah,guru:G.guru,kelas:G.kelas}))}catch(e){}};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';'),hs=s=>{let x=0;for(const c of s)x=(x*31+c.charCodeAt(0))|0;return String(x)};
+function sync(){if(!S)return;const t=today();if(S.hd!==t){S.hearts=5;S.hd=t}if(S.dd!==t){S.dayXp=0;S.dd=t}if(S.wk!==wk()){S.wxp=0;S.wk=wk()}if(S.last&&S.last!==t&&S.last!==yest())S.streak=0;save()}
+function toast(t){const e=document.createElement('div');e.className='toast';e.textContent=t;document.body.append(e);setTimeout(()=>e.remove(),1800)}
+/* maskot */
+function mascot(k,mood='happy',sz=96){const c=MASC[k].c;
+const eye=mood==='sad'?'<path d="M30 42q6-6 12 0M58 42q6-6 12 0" stroke="#12302b" stroke-width="4" fill="none" stroke-linecap="round"/>':'<circle cx="36" cy="42" r="8" fill="#fff"/><circle cx="64" cy="42" r="8" fill="#fff"/><circle cx="37" cy="43" r="4" fill="#12302b"/><circle cx="65" cy="43" r="4" fill="#12302b"/>';
+const mouth=mood==='sad'?'M42 70q8-8 16 0':mood==='cheer'?'M38 64q12 18 24 0z':'M40 66q10 10 20 0';
+const top=k==='byte'?`<path d="M18 28l8-18 14 14zM82 28l-8-18-14 14z" fill="${c}"/>`:k==='lila'?`<path d="M16 34l4-24 22 14zM84 34l-4-24-22 14z" fill="${c}"/>`:`<rect x="47" y="4" width="6" height="14" fill="${c}"/><circle cx="50" cy="5" r="5" fill="#f4a300"/>`;
+const ex=k==='byte'?'<path d="M44 54l6 7 6-7z" fill="#f4a300"/><rect x="26" y="34" width="48" height="16" rx="8" fill="none" stroke="#12302b" stroke-width="2"/>':k==='lila'?'<path d="M8 56h16M8 62l15-3M92 56H76M92 62l-15-3" stroke="#12302b" stroke-width="2"/>':'';
+return `<svg viewBox="0 0 100 100" width="${sz}" height="${sz}" class="mas ${mood}" role="img" aria-label="${MASC[k].n}">${top}<rect x="12" y="22" width="76" height="70" rx="${k==='zed'?16:34}" fill="${c}"/><ellipse cx="50" cy="78" rx="26" ry="10" fill="#fff" opacity=".25"/>${eye}${ex}<path d="${mouth}" stroke="#12302b" stroke-width="4" fill="${mood==='cheer'?'#fff':'none'}" stroke-linecap="round"/></svg>`}
+function fx(ok){if(navigator.vibrate)navigator.vibrate(ok?30:[80,40,80]);if(S&&S.mute)return;try{AC=AC||new(window.AudioContext||webkitAudioContext)();const t=AC.currentTime;(ok?[523,659,784]:[220,165]).forEach((f,i)=>{const o=AC.createOscillator(),g=AC.createGain();o.type=ok?'triangle':'sawtooth';o.frequency.value=f;g.gain.setValueAtTime(.15,t+i*.1);g.gain.exponentialRampToValueAtTime(.001,t+i*.1+.18);o.connect(g);g.connect(AC.destination);o.start(t+i*.1);o.stop(t+i*.1+.2)})}catch(e){}}
+function confetti(){const c=$('#cf'),x=c.getContext('2d');c.width=innerWidth;c.height=innerHeight;const P=Array.from({length:140},()=>({x:Math.random()*c.width,y:-20-Math.random()*c.height/2,s:5+Math.random()*7,v:2+Math.random()*4,a:Math.random()*6,c:pick(['#0d7a6b','#f4a300','#1fbf75','#ff5a5f','#18a0c2','#e0457b'])}));let f=0;(function d(){x.clearRect(0,0,c.width,c.height);P.forEach(p=>{p.y+=p.v;p.x+=Math.sin(p.a+=.07)*2;x.fillStyle=p.c;x.fillRect(p.x,p.y,p.s,p.s*.6)});if(++f<170)requestAnimationFrame(d);else x.clearRect(0,0,c.width,c.height)})()}
+/* router */
+const TABS=[['home','🗺️','Belajar'],['story','📖','Kasus'],['rank','🏆','Liga'],['me','🐾','Profil']];
+function draw(){const a=$('#app');a.className=V==='guru'?'w':'';if(V==='lesson')return drawLesson();if(V==='pin')return a.innerHTML=pinHTML();if(V==='ob')return a.innerHTML=obHTML();if(V==='auth')return a.innerHTML=authHTML();if(V==='guru')return a.innerHTML=guruHTML();if(V==='play')return a.innerHTML=playHTML();if(V==='sum')return;
+sync();const H=`<header class="top"><span class="pill">📒 Akuntansi</span><span class="pill">🔥 ${S.streak}</span><span class="pill">⚡ ${S.xp}</span><span class="pill">❤️ ${S.hearts}</span></header>`;
+const b={home:homeHTML,story:storyHTML,rank:rankHTML,me:meHTML}[V]();
+a.innerHTML=H+`<main>${b}</main><nav class="bar"><div>${TABS.map(t=>`<button class="${V===t[0]?'on':''}" onclick="V='${t[0]}';draw()"><b>${t[1]}</b>${t[2]}</button>`).join('')}</div></nav>`;scrollTo(0,0)}
+/* onboarding */
+function obHTML(){const s=OB.s;
+if(s===0)return `<div class="c stack" style="padding-top:12vh">${mascot('byte','cheer',150)}<h1>AkunQuest</h1><p class="mut">Belajar Akuntansi Keuangan seperti bermain gim: jurnal, debit-kredit, sampai laporan keuangan. Guru punya ruang sendiri untuk RPP, LKPD, dan soal.</p><button class="btn" onclick="AU={tab:'up',er:''};V='auth';draw()">Mulai Belajar</button><button class="btn ghost" onclick="AU={tab:'in',er:''};V='auth';draw()">Saya sudah punya akun</button><button class="x" style="font-size:15px" onclick="openGuru()">Masuk Ruang Guru</button></div>`;
+if(s===1)return `<div class="stack"><h2>Pilih pemandu dan target harianmu</h2>${Object.keys(MASC).map(k=>`<button class="opt ${OB.m===k?'sel':''}" onclick="OB.m='${k}';draw()"><span class="say">${mascot(k,'happy',56)}<span><b style="font-size:19px">${MASC[k].n}</b><br><small class="mut">${MASC[k].d}</small></span></span></button>`).join('')}<h3>Berapa XP yang ingin kamu raih per hari?</h3>${[[10,'Santai'],[20,'Biasa'],[30,'Serius']].map(g=>`<button class="opt ${OB.g===g[0]?'sel':''}" onclick="OB.g=${g[0]};draw()">${g[1]}: ${g[0]} XP / hari</button>`).join('')}<button class="btn" onclick="mk();OB.s=2;draw()">Lanjut</button></div>`;
+if(s===2)return `<div class="c stack" style="padding-top:8vh">${mascot(OB.m,'happy',120)}<h2>Tes penempatan</h2><p class="mut">6 soal singkat agar ${MASC[OB.m].n} tahu level yang pas untukmu. Tidak mengurangi hati.</p><button class="btn" onclick="startLesson(0,'place')">Mulai tes</button><button class="btn ghost" onclick="V='home';draw()">Mulai dari dasar</button></div>`;return ''}
+function mk(){S=S||{};Object.assign(S,{name:S.name||'',m:OB.m,goal:OB.g,level:1,xp:0,wxp:0,dayXp:0,streak:0,last:'',hearts:5,done:0,mute:0});sync()}
+/* beranda */
+function homeHTML(){const p=Math.min(100,S.dayXp/S.goal*100);let n=0;
+return `<div class="card"><b>Target harian: ${S.dayXp}/${S.goal} XP</b><div class="goal"><i style="width:${p}%"></i></div><small class="mut">Tingkat kesulitanmu: ${LV[S.level]} (menyesuaikan performamu)</small></div>`+UNITS.map((u,ui)=>`<div class="unit" style="background:${u.c}"><span>Unit ${ui+1}: ${u.t}</span><span style="font-size:26px">${u.i}</span></div><div class="path">${[0,1].map(()=>{const i=n++,st=i<S.done?'':i===S.done?'now':'lock';return `<button class="node ${st}" style="transform:translateX(${[0,46,-46,0][i%4]}px)" aria-label="Pelajaran ${i+1}" onclick="${st==='lock'?"toast('Selesaikan pelajaran sebelumnya dulu')":`startLesson(${i})`}">${st==='lock'?'🔒':i<S.done?'⭐':u.i}</button>`}).join('')}</div>`).join('')}
+/* mesin soal (dipakai siswa dan generator soal guru) */
+const opts=(it,ui)=>{const u=UNITS[ui],p=[...new Set(u.items.map(x=>x[1]).concat(u.x||[]))].filter(x=>x!==it[1]);return sh([it[1],...sh(p).slice(0,3)])};
+function mkQ(it,lv,ui){const u=UNITS[ui];const T=u.bank?{1:['choice','bank','bank'],2:['bank','bank','choice'],3:['bank']}:{1:['choice','choice','choice','type'],2:['choice','type'],3:['type','type','choice']};
+const t=pick(T[lv]),q={t,it,ui,opts:[]};
+if(t==='choice')q.opts=opts(it,ui);
+if(t==='bank'){q.opts=sh([...it[1].split(' '),...sh(u.items.flatMap(x=>x[1].split(' '))).slice(0,2)]);q.pk=[]}
+return q}
+function startLesson(idx,mode){sync();if(mode!=='place'&&S.hearts<=0)return toast('Hati habis. Kembali lagi besok!');
+const qs=mode==='place'?[0,1,2,3,0,2].map((u,k)=>mkQ(pick(UNITS[u].items),[1,1,2,2,3,3][k],u)):sh(UNITS[idx>>1].items).slice(0,6).map(it=>mkQ(it,S.level,idx>>1));
+L={qs,i:0,ok:0,wrong:0,xp:0,t0:Date.now(),mode,idx};V='lesson';draw()}
+function drawLesson(){const q=L.qs[L.i],it=q.it,u=UNITS[q.ui];L.ans='';L.q0=Date.now();let h='';
+const bb=m=>`<div class="say">${mascot(S.m,'happy',64)}<div class="bub">${m}</div></div>`;
+if(q.t==='choice')h=`<h2>Pilih jawaban yang tepat</h2>${bb(u.q(it[0]))}`+q.opts.map((o,i)=>`<button class="opt" onclick="sel(${i})">${o}</button>`).join('');
+if(q.t==='bank')h=`<h2>Susun jurnal yang tepat</h2>${bb(it[0])}<div class="ans" id="ans"></div><div id="bk"></div>`;
+if(q.t==='type')h=`<h2>Ketik jawabanmu</h2>${bb(u.q(it[0]))}<div style="margin-top:16px"><input class="t" id="ti" autocomplete="off" autocapitalize="off" placeholder="Contoh: Aset, Neraca, atau Rp1.000.000" oninput="L.ans=this.value;$('#chk').disabled=!this.value.trim()"></div>`;
+$('#app').innerHTML=`<div class="ltop"><button class="x" aria-label="Keluar" onclick="quit()">✕</button><div class="prog"><i style="width:${L.i/L.qs.length*100}%"></i></div><b>${L.mode==='place'?'Tes':'❤️ '+S.hearts}</b></div><main id="stage">${h}</main><footer id="foot"><button class="btn" id="chk" disabled onclick="check()">Periksa</button></footer>`;
+if(q.t==='bank')bk()}
+function bk(){const q=L.qs[L.i];$('#ans').innerHTML=q.pk.map((i,k)=>`<span class="chip" onclick="L.qs[L.i].pk.splice(${k},1);bk()">${q.opts[i]}</span>`).join('');$('#bk').innerHTML=q.opts.map((w,i)=>`<span class="chip ${q.pk.includes(i)?'used':''}" onclick="L.qs[L.i].pk.push(${i});bk()">${w}</span>`).join('');L.ans=q.pk.map(i=>q.opts[i]).join(' ');$('#chk').disabled=!q.pk.length}
+function sel(i){L.ans=L.qs[L.i].opts[i];document.querySelectorAll('.opt').forEach((b,k)=>b.classList.toggle('sel',k===i));$('#chk').disabled=false}
+function check(){const q=L.qs[L.i],secs=(Date.now()-L.q0)/1e3,ok=q.t==='choice'?L.ans===q.it[1]:norm2(L.ans)===norm2(q.it[1]);
+if(ok){L.ok++;L.xp+=secs<8?15:10}else{L.wrong++;if(L.mode!=='place'){S.hearts--;save();L.qs.push(mkQ(q.it,Math.max(1,S.level-1),q.ui))}}
+fx(ok);document.querySelectorAll('.opt').forEach(b=>{b.disabled=true;if(b.textContent===q.it[1])b.classList.add('good');else if(b.classList.contains('sel'))b.classList.add('err')});
+if(!ok)$('#stage').classList.add('shake');
+const f=$('#foot');f.className=ok?'ok':'bad';f.innerHTML=`<div class="say">${mascot(S.m,ok?'cheer':'sad',54)}<div class="msg" style="margin:0;flex:1">${ok?pick(['Benar! Keren!','Mantap, seimbang!','Tepat sekali!']):'Jawaban yang benar: '+q.it[1]}</div></div><button class="btn ${ok?'ok':'bad'}" style="margin-top:12px" onclick="nxt()">Lanjut</button>`}
+function nxt(){if(L.mode!=='place'&&S.hearts<=0){V='sum';return sumHTML('sad','Hati habis!','Hati terisi kembali besok. Latihan hari ini cukup sampai di sini.','Kembali')}
+if(++L.i>=L.qs.length)return finish();drawLesson()}
+function quit(){V=L.mode==='place'?'ob':'home';draw()}
+function finish(){const tot=L.ok+L.wrong,acc=Math.round(L.ok/tot*100),secs=Math.round((Date.now()-L.t0)/1e3);let msg;
+if(L.mode==='place'){S.level=L.ok>=5?3:L.ok>=3?2:1;S.done=L.ok>=5?4:L.ok>=3?2:0;msg='Hasil tes: tingkat '+LV[S.level]+'. Jalur belajarmu disesuaikan.';save();return sumHTML('cheer','Tes selesai!',msg,'Lanjut','home',L.ok+'/6',acc,secs)}
+const bonus=acc===100?10:0,gain=L.xp+bonus;S.xp+=gain;S.wxp+=gain;S.dayXp+=gain;
+if(S.last!==today()){S.streak=S.last===yest()?S.streak+1:1;S.last=today()}
+S.done=Math.max(S.done,L.idx+1);
+if(acc>=90&&secs/L.qs.length<9&&S.level<3){S.level++;msg='Kamu cepat dan tepat! Tingkat naik ke '+LV[S.level]+'.'}else if(acc<60&&S.level>1){S.level--;msg='Materi disesuaikan ke tingkat '+LV[S.level]+' agar lebih nyaman.'}else msg='Tingkat kesulitan tetap: '+LV[S.level]+'.';
+(S.log=S.log||[]).push({t:new Date().toISOString(),u:UNITS[L.idx>>1].t,n:L.idx%2+1,acc,xp:gain,s:secs,lv:S.level});S.log=S.log.slice(-300);save();syncSheet();confetti();sumHTML('cheer','Pelajaran selesai!',msg,'Lanjut','home','+'+gain+' XP',acc,secs)}
+function sumHTML(mood,t,m,btn,to,xp,acc,secs){V='sum';$('#app').innerHTML=`<div class="c stack" style="padding-top:8vh">${mascot(S.m,mood,130)}<h1>${t}</h1><p class="mut">${m}</p>${xp?`<div class="row"><div class="card stat">${xp}<small>perolehan</small></div><div class="card stat">${acc}%<small>akurasi</small></div><div class="card stat">${secs}d<small>waktu</small></div></div>`:''}<button class="btn" onclick="V='${to||'home'}';draw()">${btn}</button></div>`}
+/* studi kasus */
+function storyHTML(){return `<h2>Studi Kasus Usaha</h2><p class="mut">Cerita transaksi singkat untuk menguji analisis jurnal dan laporan. Hadiah +20 XP.</p><div class="stack" style="margin-top:14px">`+STORIES.map((s,i)=>`<button class="opt" onclick="ST={i:${i},k:0,w:0};V='play';draw()"><span class="say">${mascot(s.m,'happy',56)}<b style="font-size:19px">${s.t}</b></span></button>`).join('')+'</div>'}
+function playHTML(){const s=STORIES[ST.i],st=s.s[ST.k];return `<div class="ltop"><button class="x" aria-label="Tutup" onclick="V='story';draw()">✕</button><div class="prog"><i style="width:${ST.k/s.s.length*100}%"></i></div></div><div class="say">${mascot(s.m,'happy',72)}<div class="bub">${st[0]}</div></div><h2>${st[1].q}</h2>`+st[1].o.map((o,i)=>`<button class="opt" onclick="pa(this,${i})">${o}</button>`).join('')}
+function pa(b,i){const s=STORIES[ST.i],st=s.s[ST.k];if(i!==st[1].a){fx(0);b.classList.add('err');b.disabled=true;return}fx(1);b.classList.add('good');document.querySelectorAll('.opt').forEach(x=>x.disabled=true);
+setTimeout(()=>{if(++ST.k<s.s.length)return draw();S.xp+=20;S.wxp+=20;S.dayXp+=20;save();syncSheet();confetti();sumHTML('cheer','Kasus selesai!','Analisis transaksimu sudah tepat.','Kembali','story','+20 XP',100,0)},700)}
+/* liga */
+function rankHTML(){const d=((new Date().getDay()+6)%7)+1,lg=S.xp<300?['Perunggu','🥉']:S.xp<1000?['Perak','🥈']:['Emas','🥇'];
+const R=[...BOTS.map(b=>({n:b[0],x:Math.round(b[1]*(.3+.7*d/7))})),{n:esc(S.name)+' (kamu)',x:S.wxp,me:1}].sort((a,b)=>b.x-a.x);
+return `<div class="c">${mascot(S.m,'happy',70)}<h2 style="margin:0">Liga ${lg[0]} ${lg[1]}</h2><p class="mut">XP mingguan direset tiap Senin. 3 teratas naik liga.</p></div><div class="stack" style="margin-top:12px">`+R.map((r,i)=>`<div class="rk ${r.me?'me':''} ${i<3?'up':''}"><span>${i+1}</span><span>${r.n}</span><span>${r.x} XP</span></div>`).join('')+'</div>'}
+/* profil */
+function meHTML(){return `<div class="c stack">${mascot(S.m,'happy',100)}<h2 style="margin:0">${esc(S.name)}</h2><p class="mut" style="margin:0">@${S.username}</p><div class="row"><div class="card stat">🔥 ${S.streak}<small>streak</small></div><div class="card stat">⚡ ${S.xp}<small>total XP</small></div><div class="card stat">${LV[S.level]}<small>tingkat</small></div></div></div><h3 style="margin-top:20px">Pemandu</h3>${Object.keys(MASC).map(k=>`<button class="opt ${S.m===k?'sel':''}" onclick="S.m='${k}';save();draw()">${MASC[k].n}: ${MASC[k].d}</button>`).join('')}
+<h3 style="margin-top:20px">Pengaturan</h3><button class="opt" onclick="S.mute=!S.mute;save();draw()">Efek suara: ${S.mute?'mati':'hidup'}</button><button class="opt" onclick="S.goal=S.goal%30+10;save();draw()">Target harian: ${S.goal} XP (ketuk untuk ganti)</button><h3 style="margin-top:20px">Data & akun</h3><button class="opt" onclick="xl([S],'progres-'+S.username)">📊 Ekspor progres ke Excel</button><button class="opt" onclick="cp()">Salin kode progres (untuk guru)</button><button class="opt" onclick="openGuru()">Ruang Guru</button><button class="opt" onclick="logout()">Keluar</button><button class="opt" onclick="if(this.dataset.s){delete U[CUR];logout()}else{this.dataset.s=1;this.textContent='Ketuk lagi untuk menghapus akun dan progres'}">Hapus akun</button>`}
+function cp(){const c=btoa(unescape(encodeURIComponent(JSON.stringify({u:S.username,d:S}))));(navigator.clipboard?navigator.clipboard.writeText(c):Promise.reject()).then(()=>toast('Kode disalin')).catch(()=>prompt('Salin kode ini:',c))}
+/* akun */
+function authHTML(){const up=AU.tab==='up',us=Object.keys(U).filter(k=>U[k].pin);
+return `<div class="c stack" style="padding-top:5vh">${mascot('byte','happy',96)}<h1>${up?'Buat akun siswa':'Selamat datang kembali'}</h1><p class="mut">${up?'Gratis. Progresmu tersimpan dan bisa dipantau guru.':'Masuk untuk melanjutkan streak dan XP-mu.'}</p>
+<div class="row"><button class="btn ${up?'ghost':''}" onclick="AU={tab:'in',er:''};draw()">Masuk</button><button class="btn ${up?'':'ghost'}" onclick="AU={tab:'up',er:''};draw()">Daftar</button></div>
+${up?'<input class="t" id="fn" placeholder="Nama tampilan" maxlength="16" autocomplete="name">':''}
+<input class="t" id="un" placeholder="Username (huruf kecil / angka)" autocapitalize="off" autocomplete="username" maxlength="16">
+<input class="t" id="pw" type="password" inputmode="numeric" maxlength="4" placeholder="PIN 4 angka" autocomplete="${up?'new-password':'current-password'}">
+<p id="er" role="alert" style="color:var(--badD);font-weight:700;min-height:22px"></p>
+<button class="btn ok" onclick="${up?'doReg()':'doLogin()'}">${up?'Daftar & mulai':'Masuk'}</button>
+${!up&&us.length?`<p class="mut">Akun di perangkat ini (ketuk untuk mengisi):</p><div>${us.map(k=>`<span class="chip" onclick="$('#un').value='${k}';$('#pw').focus()">${k}</span>`).join('')}</div>`:''}
+<button class="x" style="font-size:15px" onclick="openGuru()">Masuk Ruang Guru</button></div>`}
+function doReg(){const n=$('#fn').value.trim(),u=$('#un').value.trim().toLowerCase(),p=$('#pw').value,e=m=>$('#er').textContent=m;
+if(!n)return e('Isi nama tampilan.');if(!/^[a-z0-9_]{3,16}$/.test(u))return e('Username 3-16 karakter: huruf kecil, angka, atau _.');if(!/^\d{4}$/.test(p))return e('PIN harus 4 angka.');if(U[u])return e('Username sudah dipakai. Pilih yang lain.');
+S={name:n,username:u,created:new Date().toISOString(),log:[]};U[u]={pin:hs(u+p),data:S};CUR=u;try{localStorage.setItem('akq_cur',u)}catch(x){}save();OB={s:1,m:'byte',g:20};V='ob';draw()}
+function doLogin(){const u=$('#un').value.trim().toLowerCase(),p=$('#pw').value;
+if(!U[u]||U[u].pin!==hs(u+p)||!U[u].data)return $('#er').textContent='Username atau PIN salah.';
+CUR=u;S=U[u].data;try{localStorage.setItem('akq_cur',u)}catch(x){}if(S.level){V='home'}else{OB={s:1,m:'byte',g:20};V='ob'}draw()}
+function logout(){CUR=null;S=null;try{localStorage.removeItem('akq_cur')}catch(x){}save();AU={tab:'in',er:''};V='auth';draw()}
+/* ===== RUANG GURU ===== */
+function openGuru(){V='pin';draw();setTimeout(()=>{const e=$('#gp');if(e)e.focus()},50)}
+function pinHTML(){return `<div class="c stack" style="padding-top:10vh">${mascot('byte','happy',96)}<h1>Ruang Guru</h1><p class="mut">Masukkan PIN guru untuk melanjutkan.</p><input class="t" id="gp" type="password" placeholder="PIN guru" autocomplete="off" onkeydown="if(event.key==='Enter')cekPin()"><p id="er" role="alert" style="color:var(--badD);font-weight:700;min-height:22px"></p><button class="btn ok" onclick="cekPin()">Masuk</button><button class="btn ghost" onclick="V=S?'me':CUR||Object.keys(U).length?'auth':'ob';draw()">Kembali</button></div>`}
+function cekPin(){if($('#gp').value.trim()===TEACHER_PIN){V='guru';G.tab='prog';G.doc='';draw()}else{$('#er').textContent='PIN salah.'}}
+const allD=()=>Object.values(U).map(u=>u.data).filter(Boolean);
+function guruHTML(){const T=[['prog','📊','Progres'],['rpp','📝','RPP'],['lkpd','📋','LKPD'],['soal','❓','Soal']];
+return `<div class="ltop"><button class="x" aria-label="Tutup" onclick="V=S?'me':'auth';draw()">✕</button><h2 style="margin:0">Ruang Guru</h2></div><div class="row tabs">${T.map(t=>`<button class="opt ${G.tab===t[0]?'sel':''}" onclick="G.tab='${t[0]}';G.doc='';draw()">${t[1]} ${t[2]}</button>`).join('')}</div><div class="stack" style="margin-top:14px">${G.tab==='prog'?progHTML():genHTML()}</div>`}
+/* progres siswa */
+function stats(){return allD().map(d=>{const l=d.log||[],by={};l.forEach(x=>(by[x.u]=by[x.u]||[]).push(x.acc));let wkU='-',m=101;for(const k in by){const v=by[k].reduce((a,b)=>a+b,0)/by[k].length;if(v<m){m=v;wkU=k}}
+return{d,n:l.length,avg:l.length?Math.round(l.reduce((s,x)=>s+x.acc,0)/l.length):null,wk:l.length?wkU:'-'}})}
+function progTable(cls){const R=stats();return `<table ${cls?'class="tb"':''}><tr><th>Nama</th><th>Tingkat</th><th>XP</th><th>Selesai</th><th>Akurasi</th><th>Perlu penguatan</th></tr>${R.map(s=>`<tr class="${s.avg!=null&&s.avg<60&&cls?'lo':''}"><td>${esc(s.d.name)}</td><td>${LV[s.d.level]||'-'}</td><td>${s.d.xp||0}</td><td>${s.d.done||0}/8</td><td>${s.avg==null?'-':s.avg+'%'}</td><td>${s.wk}</td></tr>`).join('')||'<tr><td colspan="6">Belum ada siswa.</td></tr>'}</table>`}
+function progHTML(){const R=stats(),A=R.filter(s=>s.avg!=null),ca=A.length?Math.round(A.reduce((a,s)=>a+s.avg,0)/A.length)+'%':'-',tc={};R.forEach(s=>s.wk!=='-'&&(tc[s.wk]=(tc[s.wk]||0)+1));const hard=Object.keys(tc).sort((a,b)=>tc[b]-tc[a])[0]||'-';
+return `<div class="row"><div class="card stat">${R.length}<small>siswa</small></div><div class="card stat">${ca}<small>rata-rata akurasi</small></div><div class="card stat" style="font-size:15px">${hard}<small>topik tersulit</small></div></div><div class="card" style="overflow-x:auto">${progTable(1)}</div>
+<div class="row"><button class="btn" onclick="xl(allD(),'progres-siswa-'+today())">📊 Ekspor Excel</button><button class="btn ghost" onclick="G.doc=progDoc();draw()">📄 Laporan PDF</button></div>
+<p class="mut" style="font-size:14px">Siswa di perangkat lain mengirim kode progres dari menu Profil. Tempel di sini untuk menggabungkannya.</p><input class="t" id="ic" placeholder="Tempel kode progres siswa"><button class="btn ghost" onclick="imp()">Impor kode siswa</button>${G.doc?prev():''}`}
+function progDoc(){return `<h1>LAPORAN PROGRES SISWA<br>AKUNTANSI KEUANGAN</h1>${idt()}<p>Tanggal cetak: ${today()}</p>${progTable(0)}`}
+function imp(){try{const o=JSON.parse(decodeURIComponent(escape(atob($('#ic').value.trim()))));if(!o.u||!o.d)throw 0;U[o.u]=U[o.u]||{pin:null};U[o.u].data=o.d;if(o.u===CUR)S=o.d;save();toast('Siswa diimpor');draw()}catch(e){toast('Kode tidak valid')}}
+/* generator RPP / LKPD / soal */
+const F={rpp:['RPP / Modul Ajar',()=>rpp()],lkpd:['LKPD',()=>lkpd()],soal:['Soal & Kunci Jawaban',()=>soal()]};
+function genHTML(){const t=G.tab,so=t==='soal';if(!so&&G.topic<0)G.topic=0;const n=G.topic<0?UNITS.reduce((a,u)=>a+u.items.length,0):UNITS[G.topic].items.length;
+const f=(l,k,ty='text')=>`<div><label>${l}</label><input class="t" type="${ty}" value="${esc(G[k])}" oninput="G.${k}=${ty==='number'?'+this.value':'this.value'};sg()"></div>`;
+return `<div class="card"><label style="margin-top:0">Topik materi</label><select class="t" onchange="G.topic=+this.value">${UNITS.map((u,i)=>`<option value="${i}" ${G.topic===i?'selected':''}>${u.i} ${u.t}</option>`).join('')}${so?`<option value="-1" ${G.topic<0?'selected':''}>Semua topik</option>`:''}</select>
+<div class="row" style="flex-wrap:wrap">${f('Satuan pendidikan','sekolah')}${f('Nama guru','guru')}${f('Kelas','kelas')}${t==='rpp'?f('Alokasi waktu (menit)','waktu','number'):''}${so?f('Jumlah pilihan ganda','npg','number')+f('Jumlah uraian','nur','number'):''}</div>
+${so?`<small class="mut">Bank soal pilihan ganda tersedia: ${n} butir untuk pilihan ini.</small>`:''}</div>
+<button class="btn ok" onclick="G.doc=F['${t}'][1]();draw()">✨ Buat ${F[t][0]}</button>${G.doc?prev():''}`}
+function prev(){return `<div class="card"><b>Pratinjau</b> <span class="mut">(klik teks untuk mengedit sebelum dicetak)</span></div><div class="doc" id="dc" contenteditable="true" oninput="G.doc=this.innerHTML">${G.doc}</div><button class="btn" onclick="pdf()">🖨️ Simpan / Cetak sebagai PDF</button><p class="mut" style="font-size:14px">Di jendela cetak, pilih tujuan "Simpan sebagai PDF".</p>`}
+function pdf(){const e=$('#dc');if(!e)return;$('#pr').innerHTML=e.innerHTML;const t=document.title;document.title='Perangkat-Akuntansi-'+today();setTimeout(()=>{print();document.title=t},50)}
+const idt=()=>`<table><tr><td width="22%">Satuan Pendidikan</td><td>${esc(G.sekolah)||'………………'}</td><td width="12%">Kelas</td><td>${esc(G.kelas)}</td></tr><tr><td>Mata Pelajaran</td><td>Akuntansi Keuangan</td><td>Guru</td><td>${esc(G.guru)||'………………'}</td></tr></table>`;
+const ol=a=>'<ol>'+a.map(x=>`<li>${x}</li>`).join('')+'</ol>',ln=n=>'<div class="ln"></div>'.repeat(n);
+const ttd=()=>`<table style="margin-top:18px"><tr><td style="border:0;text-align:center">Mengetahui,<br>Kepala Sekolah<br><br><br><br>(………………………)</td><td style="border:0;text-align:center">Guru Mata Pelajaran<br><br><br><br><br>(${esc(G.guru)||'………………………'})</td></tr></table>`;
+function rpp(){const u=UNITS[G.topic],w=Math.max(20,+G.waktu||90),a=Math.round(w*.15),b=Math.round(w*.7),c=w-a-b;
+return `<h1>MODUL AJAR / RENCANA PELAKSANAAN PEMBELAJARAN<br>AKUNTANSI KEUANGAN</h1>${idt()}<p><b>Topik:</b> ${u.t} &nbsp; <b>Alokasi waktu:</b> ${w} menit</p>
+<h3>A. Tujuan Pembelajaran</h3>${ol(u.tp)}<h3>B. Pemahaman Bermakna</h3><p>${u.k}</p>
+<h3>C. Model dan Metode</h3><p>Problem Based Learning, diskusi kelompok, latihan terbimbing, dan kuis interaktif gamifikasi (Ruang Siswa AkunQuest).</p>
+<h3>D. Kegiatan Pembelajaran</h3><table><tr><th width="16%">Tahap</th><th>Kegiatan</th><th width="14%">Waktu</th></tr>
+<tr><td>Pendahuluan</td><td>Salam, doa, dan presensi. Apersepsi dengan pertanyaan pemantik: "${u.pm}" Guru menyampaikan tujuan dan alur pembelajaran.</td><td>${a} menit</td></tr>
+<tr><td>Inti</td><td>${ol(['Guru menjelaskan konsep '+u.t+' disertai contoh transaksi.','Siswa berkelompok mengerjakan LKPD, misalnya: '+u.kasus[0],'Kelompok mempresentasikan hasil; guru dan kelompok lain memberi umpan balik.','Siswa memperkuat pemahaman melalui kuis interaktif.'])}</td><td>${b} menit</td></tr>
+<tr><td>Penutup</td><td>Siswa dan guru menyimpulkan materi, melakukan refleksi, memberikan tugas/penilaian, dan menginformasikan materi berikutnya.</td><td>${c} menit</td></tr></table>
+<h3>E. Asesmen</h3><ul><li>Diagnostik: pertanyaan pemantik di awal.</li><li>Formatif: observasi diskusi dan hasil LKPD.</li><li>Sumatif: tes tertulis pilihan ganda dan uraian; nilai = skor perolehan ÷ skor maksimum × 100.</li></ul>
+<h3>F. Refleksi</h3><ul><li>Guru: bagian mana yang belum dikuasai sebagian besar siswa? Apa tindak lanjutnya?</li><li>Siswa: apa yang sudah kupahami dan apa yang masih membingungkan?</li></ul>${ttd()}`}
+function lkpd(){const u=UNITS[G.topic];
+return `<h1>LEMBAR KERJA PESERTA DIDIK (LKPD)<br>${u.t.toUpperCase()}</h1><table><tr><td width="18%">Nama</td><td></td><td width="12%">Kelas</td><td>${esc(G.kelas)}</td></tr><tr><td>Kelompok</td><td></td><td>Tanggal</td><td></td></tr></table>
+<h3>Tujuan Pembelajaran</h3>${ol(u.tp)}<h3>Ringkasan Konsep</h3><p>${u.k}</p>
+<h3>Kegiatan 1: Latihan Dasar</h3><p>Lengkapilah tabel berikut dengan tepat.</p><table><tr><th width="6%">No</th><th>${u.h[0]}</th><th width="38%">${u.h[1]}</th></tr>${u.items.map((x,i)=>`<tr><td>${i+1}</td><td>${x[0]}</td><td style="height:28px"></td></tr>`).join('')}</table>
+<h3>Kegiatan 2: Studi Kasus</h3>${u.kasus.map((k,i)=>`<p>${i+1}. ${k}</p>${ln(3)}`).join('')}<h3>Kesimpulan</h3>${ln(2)}<h3>Refleksi</h3><p>Bagian yang paling mudah: ………………… Bagian yang masih sulit: …………………</p>`}
+function soal(){const ts=G.topic<0?UNITS.map((_,i)=>i):[G.topic],K=[],tl=G.topic<0?'Semua Topik':UNITS[G.topic].t;
+const P=sh(ts.flatMap(ui=>UNITS[ui].items.map(it=>[it,ui]))).slice(0,Math.max(0,+G.npg||0)),ur=sh(ts.flatMap(ui=>UNITS[ui].ur)).slice(0,Math.max(0,+G.nur||0));
+const pg=P.map(([it,ui])=>{const o=opts(it,ui);K.push('ABCD'[o.indexOf(it[1])]);return `<li>${UNITS[ui].q(it[0])}${o.map((x,j)=>`<div>${'ABCD'[j]}. ${x}</div>`).join('')}</li>`}).join('');
+return `<h1>SOAL ASESMEN<br>AKUNTANSI KEUANGAN</h1>${idt()}<p><b>Topik:</b> ${tl}<br>Nama: ………………………… &nbsp; No. Absen: ……</p>
+${pg?`<h3>I. Pilihan Ganda</h3><p>Pilihlah jawaban yang paling tepat!</p><ol>${pg}</ol>`:''}${ur.length?`<h3>${pg?'II':'I'}. Uraian</h3><ol>${ur.map(x=>`<li>${x[0]}${ln(3)}</li>`).join('')}</ol>`:''}
+<div class="pb"></div><h1>KUNCI JAWABAN DAN PEDOMAN PENSKORAN</h1><p><b>Pilihan ganda</b> (1 poin/butir): ${K.map((k,i)=>`${i+1}. ${k}`).join(', ')||'-'}</p>
+${ur.length?`<p><b>Uraian</b> (maksimum 5 poin/butir):</p>${ol(ur.map(x=>x[1]))}`:''}<p>Skor maksimum = ${P.length+ur.length*5}. Nilai = skor perolehan ÷ skor maksimum × 100.</p>`}
+/* ekspor */
+const rowSum=d=>({'Nama':d.name,'Username':d.username||'-','Tingkat':LV[d.level]||'-','Total XP':d.xp||0,'XP Minggu Ini':d.wxp||0,'Streak':d.streak||0,'Pelajaran Selesai':(d.done||0)+'/8','Hati':d.hearts==null?'-':d.hearts,'Terakhir Belajar':d.last||'-','Dibuat':(d.created||'').slice(0,10)});
+function xl(list,fn){if(!list.length)return toast('Belum ada data');
+const rows=list.map(rowSum),his=list.flatMap(d=>(d.log||[]).map(l=>({'Nama':d.name,'Username':d.username||'-','Waktu':l.t.replace('T',' ').slice(0,16),'Unit':l.u,'Pelajaran':l.n,'Akurasi (%)':l.acc,'XP':l.xp,'Durasi (detik)':l.s,'Tingkat':LV[l.lv]||'-'})));
+if(window.XLSX){const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows),'Ringkasan');XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(his.length?his:[{Info:'Belum ada riwayat sesi'}]),'Riwayat Sesi');XLSX.writeFile(wb,fn+'.xlsx');return toast('File Excel diunduh')}
+const q=v=>'"'+String(v).replace(/"/g,'""')+'"',k=Object.keys(rows[0]),csv='\ufeff'+[k.map(q).join(','),...rows.map(r=>k.map(c=>q(r[c])).join(','))].join('\r\n'),a=document.createElement('a');
+a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=fn+'.csv';a.click();toast('Library Excel gagal dimuat, diunduh sebagai CSV')}
+function syncSheet(){if(!SHEET_URL||!S)return;try{fetch(SHEET_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(rowSum(S))})}catch(e){}}
+draw();
+</script>
+</body>
+</html>
